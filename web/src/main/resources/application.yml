@@ -1,0 +1,98 @@
+server:
+  address: 0.0.0.0
+  port: 8080
+  servlet:
+    context-path: /api
+    # cookie 30 天过期
+    session:
+      cookie:
+        max-age: 2592000
+
+spring:
+  application:
+    name: springboot3.4.x-init
+  # 默认 dev 环境
+  profiles:
+    active: dev
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/example
+    username: root
+    password: 101673
+
+  # redis 配置
+  data:
+    redis:
+      # 地址
+      host: localhost
+      # 端口，默认为6379
+      port: 6379
+      # 数据库索引
+      database: 0
+      # 密码
+      password:
+      # 连接超时时间
+      timeout: 10s
+      lettuce:
+        pool:
+          # 连接池中的最小空闲连接
+          min-idle: 0
+          # 连接池中的最大空闲连接
+          max-idle: 8
+          # 连接池的最大数据库连接数
+          max-active: 8
+          # #连接池最大阻塞等待时间（使用负值表示没有限制）
+          max-wait: -1ms
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      logic-delete-field: isDeleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+      id-type: auto
+
+path:
+  file-upload-path: xxx
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs  # 配置 OpenAPI 文档的路径
+  swagger-ui:
+    path: /swagger-ui.html  # 配置 Swagger UI 的路径
+    enabled: true  # 启用 Swagger UI
+
+  # 定制文档基本信息
+  info:
+    title: API 文档标题  # 设置文档标题
+    description: API 文档描述  # 设置文档描述
+    version: 1.0.0  # 设置 API 版本
+    terms-of-service: https://example.com/terms  # 服务条款 URL
+
+    # 关于开发者
+    contact:
+      name: 开发者姓名  # 开发者联系人姓名
+      url: https://example.com/contact  # 联系方式 URL
+      email: dev@example.com  # 开发者联系邮箱
+
+    # 关于许可证
+    license:
+      name: Apache 2.0  # 许可证名称
+      url: https://www.apache.org/licenses/LICENSE-2.0.html  # 许可证 URL
+
+  # 定制服务器基本信息
+  servers:
+    - url: http://localhost:8080  # 服务器 URL
+      description: 本地服务器  # 服务器描述
+    - url: https://api.example.com  # 服务器 URL
+      description: 生产服务器  # 服务器描述
+
+  # 定制外部文档信息
+  external-docs:
+    description: 外部文档描述  # 外部文档描述
+    url: https://example.com/docs  # 外部文档 URL
+
+
