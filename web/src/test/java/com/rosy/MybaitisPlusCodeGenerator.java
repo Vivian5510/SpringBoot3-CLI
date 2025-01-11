@@ -9,7 +9,7 @@ import java.util.List;
 
 public class MybaitisPlusCodeGenerator {
     public static void main(String[] args) {
-        FastAutoGenerator.create("jdbc:mysql://localhost:3306/example", "root", "101673")
+        FastAutoGenerator.create("jdbc:mysql://localhost:3306/example", "xxx", "xxx")
                 .globalConfig(builder -> builder
                         .author("Rosy")
                         .outputDir("G:\\Material\\Codes\\springboot3.4.x-init\\main\\src\\main\\java")
