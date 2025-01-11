@@ -1,6 +1,6 @@
 package com.rosy.common.domain.entity;
 
-import com.rosy.common.constant.CommonConstants;
+import com.rosy.common.constant.CommonConstant;
 import lombok.Data;
 
 @Data
@@ -24,5 +24,5 @@ public class PageRequest {
     /**
      * 排序顺序（默认升序）
      */
-    private String sortOrder = CommonConstants.SORT_ORDER_ASC;
+    private String sortOrder = CommonConstant.SORT_ORDER_ASC;
 }

@@ -25,7 +25,7 @@ public class MybaitisPlusCodeGenerator {
                 )
                 .strategyConfig(builder -> builder
                         .entityBuilder()
-                        .logicDeleteColumnName("del_flag")
+                        .logicDeleteColumnName("isDeleted")
                         .versionColumnName("version")
                         .addTableFills(List.of(
                                 new Column("create_time", FieldFill.INSERT),
@@ -33,6 +33,8 @@ public class MybaitisPlusCodeGenerator {
                                 new Column("update_time", FieldFill.INSERT_UPDATE),
                                 new Column("update_by", FieldFill.INSERT_UPDATE)
                         ))
+                        .controllerBuilder()
+                        .enableRestStyle()
                 )
                 .strategyConfig(builder -> builder
                         .addInclude("user")

@@ -4,16 +4,17 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONReader;
 import com.alibaba.fastjson2.JSONWriter;
 import com.alibaba.fastjson2.filter.Filter;
-import com.rosy.common.constant.CommonConstants;
+import com.rosy.common.constant.CommonConstant;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.SerializationException;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 public class FastJson2JsonRedisSerializer<T> implements RedisSerializer<T> {
-    public static final Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
+    public static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
-    static final Filter AUTO_TYPE_FILTER = JSONReader.autoTypeFilter(CommonConstants.JSON_WHITELIST_STR);
+    static final Filter AUTO_TYPE_FILTER = JSONReader.autoTypeFilter(CommonConstant.JSON_WHITELIST_STR);
 
     private final Class<T> clazz;
 

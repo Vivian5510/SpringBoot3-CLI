@@ -2,7 +2,7 @@ package com.rosy.common.constant;
 
 import java.util.Locale;
 
-public class CommonConstants {
+public class CommonConstant {
     /**
      * UTF-8 字符集
      */

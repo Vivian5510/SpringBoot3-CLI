@@ -1,15 +1,15 @@
 package com.rosy.framework.config;
 
-import org.springdoc.core.customizers.OpenApiCustomizer;
-import org.springdoc.core.models.GroupedOpenApi;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.servers.Server;
+import org.springdoc.core.customizers.OpenApiCustomizer;
+import org.springdoc.core.models.GroupedOpenApi;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 
@@ -41,7 +41,7 @@ public class OpenAPIConfig {
 
                 //配置服务器信息
                 .servers(List.of(
-                        new Server().url("http://localhost:8080").description("本地服务器"),
+                        new Server().url("http://localhost:8080/api").description("本地服务器"),
                         new Server().url("https://api.example.com").description("生产服务器")))
 
                 //配置外部文档信息
@@ -55,7 +55,7 @@ public class OpenAPIConfig {
     public GroupedOpenApi publicApi() {
         return GroupedOpenApi.builder()
                 .group("public")
-                .pathsToMatch("/api/**")
+                .pathsToMatch("/**")
                 .build();
     }
 

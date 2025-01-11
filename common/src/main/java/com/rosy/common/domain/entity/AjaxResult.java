@@ -2,11 +2,15 @@ package com.rosy.common.domain.entity;
 
 import com.rosy.common.constant.HttpStatus;
 import com.rosy.common.utils.StringUtils;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serial;
 import java.util.HashMap;
 import java.util.Objects;
 
+@EqualsAndHashCode(callSuper = true)
+@Data
 public class AjaxResult extends HashMap<String, Object> {
     @Serial
     private static final long serialVersionUID = 1L;
