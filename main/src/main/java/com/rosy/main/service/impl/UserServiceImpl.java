@@ -8,6 +8,7 @@ import com.rosy.common.constant.CommonConstant;
 import com.rosy.common.enums.ErrorCode;
 import com.rosy.common.enums.UserRoleEnum;
 import com.rosy.common.exception.BusinessException;
+import com.rosy.common.utils.QueryWrapperUtil;
 import com.rosy.common.utils.SqlUtils;
 import com.rosy.main.domain.dto.user.UserLoginRequest;
 import com.rosy.main.domain.dto.user.UserQueryRequest;
@@ -40,17 +41,16 @@ import static com.rosy.common.constant.UserConstant.USER_LOGIN_STATE;
 @Service
 @Slf4j
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IUserService {
-    /**
-     * 盐值，混淆密码
-     */
-    private static final String SALT = "rosy";
     private static final BCryptPasswordEncoder PASSWORD_ENCODER = new BCryptPasswordEncoder();
 
     @Override
     public long userRegister(UserRegisterRequest userRegisterRequest) {
         String userAccount = userRegisterRequest.getUserAccount();
         String userPassword = userRegisterRequest.getUserPassword();
-        String checkPassword = userRegisterRequest.getCheckPassword();
+        // 密码和校验密码相同
+        if (!userPassword.equals(userRegisterRequest.getCheckPassword())) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "两次输入的密码不一致");
+        }
         //追求性能的话，可以使用分布式锁或更高效的本地锁机制。
         synchronized (userAccount.intern()) {
             // 账户不能重复
@@ -161,25 +161,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         if (userQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "请求参数为空");
         }
-        Long id = userQueryRequest.getId();
-        String userName = userQueryRequest.getUserName();
-        String userProfile = userQueryRequest.getUserProfile();
-        String userRole = userQueryRequest.getUserRole();
-        String sortField = userQueryRequest.getSortField();
-        String sortOrder = userQueryRequest.getSortOrder();
-
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        // 使用工具类简化条件添加
+        QueryWrapperUtil.addCondition(queryWrapper, userQueryRequest.getId(), User::getId);
+        QueryWrapperUtil.addCondition(queryWrapper, userQueryRequest.getUserRole(), User::getUserRole);
+        QueryWrapperUtil.addLikeCondition(queryWrapper, userQueryRequest.getUserProfile(), User::getUserProfile);
+        QueryWrapperUtil.addLikeCondition(queryWrapper, userQueryRequest.getUserName(), User::getUserName);
 
-        // 使用Lambda表达式进行字段的条件判断
-        queryWrapper.eq(id != null, User::getId, id);
-        queryWrapper.eq(StringUtils.isNotBlank(userRole), User::getUserRole, userRole);
-        queryWrapper.like(StringUtils.isNotBlank(userProfile), User::getUserProfile, userProfile);
-        queryWrapper.like(StringUtils.isNotBlank(userName), User::getUserName, userName);
-
-        // 排序
-        if (SqlUtils.validSortField(sortField)) {
-            queryWrapper.orderBy(true, sortOrder.equals(CommonConstant.SORT_ORDER_ASC), User::getId); // 默认排序使用User的id
-        }
+        // 添加排序条件
+        QueryWrapperUtil.addSortCondition(queryWrapper,
+                userQueryRequest.getSortField(),
+                userQueryRequest.getSortOrder(),
+                User::getId);
 
         return queryWrapper;
     }

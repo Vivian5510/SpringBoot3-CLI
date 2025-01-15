@@ -32,7 +32,7 @@
         </list>
       </option>
     </inspection_tool>
-    <inspection_tool class="VulnerableLibrariesLocal" enabled="true" level="WARNING" enabled_by_default="true">
+    <inspection_tool class="VulnerableLibrariesLocal" enabled="true" level="INFORMATION" enabled_by_default="true">
       <option name="isIgnoringEnabled" value="true" />
       <option name="ignoredModules">
         <list>
