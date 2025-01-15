@@ -1,5 +1,6 @@
 package com.rosy.main.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -8,7 +9,9 @@ import com.rosy.common.enums.ErrorCode;
 import com.rosy.common.enums.UserRoleEnum;
 import com.rosy.common.exception.BusinessException;
 import com.rosy.common.utils.SqlUtils;
+import com.rosy.main.domain.dto.user.UserLoginRequest;
 import com.rosy.main.domain.dto.user.UserQueryRequest;
+import com.rosy.main.domain.dto.user.UserRegisterRequest;
 import com.rosy.main.domain.entity.User;
 import com.rosy.main.domain.vo.LoginUserVO;
 import com.rosy.main.domain.vo.UserVO;
@@ -17,9 +20,8 @@ import com.rosy.main.service.IUserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.DigestUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,23 +44,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
      * 盐值，混淆密码
      */
     private static final String SALT = "rosy";
+    private static final BCryptPasswordEncoder PASSWORD_ENCODER = new BCryptPasswordEncoder();
 
     @Override
-    public long userRegister(String userAccount, String userPassword, String checkPassword) {
-        // 1. 校验
-        if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
-        }
-        if (userAccount.length() < 4) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户账号过短");
-        }
-        if (userPassword.length() < 8 || checkPassword.length() < 8) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户密码过短");
-        }
-        // 密码和校验密码相同
-        if (!userPassword.equals(checkPassword)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "两次输入的密码不一致");
-        }
+    public long userRegister(UserRegisterRequest userRegisterRequest) {
+        String userAccount = userRegisterRequest.getUserAccount();
+        String userPassword = userRegisterRequest.getUserPassword();
+        String checkPassword = userRegisterRequest.getCheckPassword();
+        //追求性能的话，可以使用分布式锁或更高效的本地锁机制。
         synchronized (userAccount.intern()) {
             // 账户不能重复
             LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
@@ -68,7 +61,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
                 throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号重复");
             }
             // 2. 加密
-            String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
+            String encryptPassword = PASSWORD_ENCODER.encode(userPassword);
             // 3. 插入数据
             User user = new User();
             user.setUserAccount(userAccount);
@@ -83,19 +76,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
 
     @Override
-    public LoginUserVO userLogin(String userAccount, String userPassword, HttpServletRequest request) {
-        // 1. 校验
-        if (StringUtils.isAnyBlank(userAccount, userPassword)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
-        }
-        if (userAccount.length() < 4) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号错误");
-        }
-        if (userPassword.length() < 8) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码错误");
-        }
+    public LoginUserVO userLogin(UserLoginRequest userLoginRequest, HttpServletRequest request) {
+        String userAccount = userLoginRequest.getUserAccount();
+        String userPassword = userLoginRequest.getUserPassword();
         // 2. 加密
-        String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
+        String encryptPassword = PASSWORD_ENCODER.encode(userPassword);
         // 查询用户是否存在
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(User::getUserAccount, userAccount);  // 使用Lambda方式指定字段
@@ -114,37 +99,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
     @Override
     public User getLoginUser(HttpServletRequest request) {
-        // 先判断是否已登录
-        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
-        User currentUser = (User) userObj;
-        if (currentUser == null || currentUser.getId() == null) {
-            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
-        }
-        // 从数据库查询（追求性能的话可以注释，直接走缓存）
-        long userId = currentUser.getId();
-        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(User::getId, userId);  // 使用Lambda方式指定字段
-        currentUser = this.getOne(queryWrapper);
-        if (currentUser == null) {
-            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
-        }
-        return currentUser;
+        return getSessionUser(request, false);
     }
 
 
     @Override
     public User getLoginUserPermitNull(HttpServletRequest request) {
-        // 先判断是否已登录
-        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
-        User currentUser = (User) userObj;
-        if (currentUser == null || currentUser.getId() == null) {
-            return null;
-        }
-        // 从数据库查询（追求性能的话可以注释，直接走缓存）
-        long userId = currentUser.getId();
-        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(User::getId, userId);  // 使用Lambda方式指定字段
-        return this.getOne(queryWrapper);
+        return getSessionUser(request, true);
     }
 
 
@@ -176,9 +137,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         if (user == null) {
             return null;
         }
-        LoginUserVO loginUserVO = new LoginUserVO();
-        BeanUtils.copyProperties(user, loginUserVO);
-        return loginUserVO;
+        return BeanUtil.copyProperties(user, LoginUserVO.class);
     }
 
     @Override
@@ -186,9 +145,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         if (user == null) {
             return null;
         }
-        UserVO userVO = new UserVO();
-        BeanUtils.copyProperties(user, userVO);
-        return userVO;
+        return BeanUtil.copyProperties(user, UserVO.class);
     }
 
     @Override
@@ -227,4 +184,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         return queryWrapper;
     }
 
+    private User getSessionUser(HttpServletRequest request, boolean allowNull) {
+        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
+        if (userObj == null) {
+            if (allowNull) {
+                return null;
+            }
+            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR, "用户未登录");
+        }
+        return (User) userObj;
+    }
 }

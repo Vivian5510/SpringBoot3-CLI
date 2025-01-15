@@ -1,6 +1,5 @@
 package com.rosy.common.enums;
 
-import lombok.Data;
 import lombok.Getter;
 import org.apache.commons.lang3.ObjectUtils;
 

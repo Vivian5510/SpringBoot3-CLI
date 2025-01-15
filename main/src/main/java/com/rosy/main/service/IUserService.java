@@ -2,7 +2,9 @@ package com.rosy.main.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.rosy.main.domain.dto.user.UserLoginRequest;
 import com.rosy.main.domain.dto.user.UserQueryRequest;
+import com.rosy.main.domain.dto.user.UserRegisterRequest;
 import com.rosy.main.domain.entity.User;
 import com.rosy.main.domain.vo.LoginUserVO;
 import com.rosy.main.domain.vo.UserVO;
@@ -22,12 +24,12 @@ public interface IUserService extends IService<User> {
     /**
      * 用户注册
      */
-    long userRegister(String userAccount, String userPassword, String checkPassword);
+    long userRegister(UserRegisterRequest userRegisterRequest);
 
     /**
      * 用户登录
      */
-    LoginUserVO userLogin(String userAccount, String userPassword, HttpServletRequest request);
+    LoginUserVO userLogin(UserLoginRequest userLoginRequest, HttpServletRequest request);
 
     /**
      * 获取当前登录用户

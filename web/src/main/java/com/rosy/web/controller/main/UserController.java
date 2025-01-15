@@ -16,6 +16,7 @@ import com.rosy.main.domain.vo.LoginUserVO;
 import com.rosy.main.domain.vo.UserVO;
 import com.rosy.main.service.IUserService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,14 +43,14 @@ public class UserController {
      */
     @PostMapping("/register")
     @ValidateRequest
-    public AjaxResult userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
+    public AjaxResult userRegister(@Valid @RequestBody UserRegisterRequest userRegisterRequest) {
         String userAccount = userRegisterRequest.getUserAccount();
         String userPassword = userRegisterRequest.getUserPassword();
         String checkPassword = userRegisterRequest.getCheckPassword();
         if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)) {
             return null;
         }
-        long result = userService.userRegister(userAccount, userPassword, checkPassword);
+        long result = userService.userRegister(userRegisterRequest);
         return AjaxResult.success(result);
     }
 
@@ -58,13 +59,8 @@ public class UserController {
      */
     @PostMapping("/login")
     @ValidateRequest
-    public AjaxResult userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
-        String userAccount = userLoginRequest.getUserAccount();
-        String userPassword = userLoginRequest.getUserPassword();
-        if (StringUtils.isAnyBlank(userAccount, userPassword)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
-        LoginUserVO loginUserVO = userService.userLogin(userAccount, userPassword, request);
+    public AjaxResult userLogin(@Valid @RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
+        LoginUserVO loginUserVO = userService.userLogin(userLoginRequest, request);
         return AjaxResult.success(loginUserVO);
     }
 

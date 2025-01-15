@@ -7,11 +7,10 @@ import java.io.Serializable;
 
 @Data
 public class IdRequest implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
     /**
      * id
      */
     private Long id;
-
-    @Serial
-    private static final long serialVersionUID = 1L;
 }
