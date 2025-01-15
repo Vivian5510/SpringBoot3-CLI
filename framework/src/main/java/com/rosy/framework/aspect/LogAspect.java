@@ -20,9 +20,9 @@ import java.util.UUID;
 public class LogAspect {
 
     /**
-     * 拦截带有 @Loggable 注解的方法
+     * 拦截带有 @LogTag 注解的方法
      */
-    @Around("@annotation(com.rosy.common.annotation.Loggable)")
+    @Around("@annotation(com.rosy.common.annotation.LogTag)")
     public Object doInterceptor(ProceedingJoinPoint point) throws Throwable {
         // 计时
         StopWatch stopWatch = new StopWatch();

@@ -1,4 +1,4 @@
 package com.rosy.common.annotation;
 
-public @interface Loggable {
+public @interface LogTag {
 }
