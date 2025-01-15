@@ -1,10 +1,14 @@
 package com.rosy.web.controller.main;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.rosy.common.annotation.AuthCheck;
+import com.rosy.common.annotation.ValidateRequest;
 import com.rosy.common.domain.entity.AjaxResult;
-import com.rosy.common.domain.entity.DeleteRequest;
+import com.rosy.common.domain.entity.IdRequest;
 import com.rosy.common.enums.ErrorCode;
 import com.rosy.common.exception.BusinessException;
+import com.rosy.common.utils.PageUtils;
 import com.rosy.common.utils.ThrowUtils;
 import com.rosy.main.domain.dto.user.*;
 import com.rosy.main.domain.entity.User;
@@ -16,8 +20,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 /**
  * <p>
@@ -39,10 +41,8 @@ public class UserController {
      * 用户注册
      */
     @PostMapping("/register")
+    @ValidateRequest
     public AjaxResult userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
-        if (userRegisterRequest == null) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
         String userAccount = userRegisterRequest.getUserAccount();
         String userPassword = userRegisterRequest.getUserPassword();
         String checkPassword = userRegisterRequest.getCheckPassword();
@@ -57,10 +57,8 @@ public class UserController {
      * 用户登录
      */
     @PostMapping("/login")
+    @ValidateRequest
     public AjaxResult userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
-        if (userLoginRequest == null) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
         String userAccount = userLoginRequest.getUserAccount();
         String userPassword = userLoginRequest.getUserPassword();
         if (StringUtils.isAnyBlank(userAccount, userPassword)) {
@@ -74,10 +72,8 @@ public class UserController {
      * 用户注销
      */
     @PostMapping("/logout")
+    @ValidateRequest
     public AjaxResult userLogout(HttpServletRequest request) {
-        if (request == null) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
         boolean result = userService.userLogout(request);
         return AjaxResult.success(result);
     }
@@ -99,10 +95,8 @@ public class UserController {
      * 创建用户
      */
     @PostMapping("/add")
-    public AjaxResult addUser(@RequestBody UserAddRequest userAddRequest, HttpServletRequest request) {
-        if (userAddRequest == null) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
+    @ValidateRequest
+    public AjaxResult addUser(@RequestBody UserAddRequest userAddRequest) {
         User user = new User();
         BeanUtils.copyProperties(userAddRequest, user);
         boolean result = userService.save(user);
@@ -114,25 +108,23 @@ public class UserController {
      * 删除用户
      */
     @PostMapping("/delete")
-    public AjaxResult deleteUser(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
-        if (deleteRequest == null || deleteRequest.getId() <= 0) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
-        boolean b = userService.removeById(deleteRequest.getId());
-        return AjaxResult.success(b);
+    @ValidateRequest
+    public AjaxResult deleteUser(@RequestBody IdRequest idRequest) {
+        boolean result = userService.removeById(idRequest.getId());
+        return AjaxResult.success(result);
     }
 
     /**
      * 更新用户
      */
     @PostMapping("/update")
+    @ValidateRequest
     public AjaxResult updateUser(@RequestBody UserUpdateRequest userUpdateRequest,
                                  HttpServletRequest request) {
-        if (userUpdateRequest == null || userUpdateRequest.getId() == null) {
+        if (userUpdateRequest.getId() == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        User user = new User();
-        BeanUtils.copyProperties(userUpdateRequest, user);
+        User user = BeanUtil.copyProperties(userUpdateRequest, User.class);
         boolean result = userService.updateById(user);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return AjaxResult.success(true);
@@ -142,7 +134,7 @@ public class UserController {
      * 根据 id 获取用户（仅管理员）
      */
     @GetMapping("/get")
-    public AjaxResult getUserById(long id, HttpServletRequest request) {
+    public AjaxResult getUserById(long id) {
         if (id <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -155,8 +147,11 @@ public class UserController {
      * 根据 id 获取包装类
      */
     @GetMapping("/get/vo")
-    public AjaxResult getUserVOById(long id, HttpServletRequest request) {
-        AjaxResult response = getUserById(id, request);
+    public AjaxResult getUserVOById(long id) {
+        if (id <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        AjaxResult response = getUserById(id);
         User user = (User) response.get(AjaxResult.DATA_TAG);
         return AjaxResult.success(userService.getUserVO(user));
     }
@@ -165,12 +160,12 @@ public class UserController {
      * 分页获取用户列表（仅管理员）
      */
     @PostMapping("/list/page")
-    public AjaxResult listUserByPage(@RequestBody UserQueryRequest userQueryRequest,
-                                     HttpServletRequest request) {
+    @ValidateRequest
+    @AuthCheck(mustRole = "admin")
+    public AjaxResult listUserByPage(@RequestBody UserQueryRequest userQueryRequest) {
         long current = userQueryRequest.getCurrent();
         long size = userQueryRequest.getPageSize();
-        Page<User> userPage = userService.page(new Page<>(current, size),
-                userService.getQueryWrapper(userQueryRequest));
+        Page<User> userPage = userService.page(new Page<>(current, size), userService.getQueryWrapper(userQueryRequest));
         return AjaxResult.success(userPage);
     }
 
@@ -178,20 +173,14 @@ public class UserController {
      * 分页获取用户封装列表
      */
     @PostMapping("/list/page/vo")
-    public AjaxResult listUserVOByPage(@RequestBody UserQueryRequest userQueryRequest,
-                                       HttpServletRequest request) {
-        if (userQueryRequest == null) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
+    @ValidateRequest
+    public AjaxResult listUserVOByPage(@RequestBody UserQueryRequest userQueryRequest) {
         long current = userQueryRequest.getCurrent();
         long size = userQueryRequest.getPageSize();
         // 限制爬虫
         ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
-        Page<User> userPage = userService.page(new Page<>(current, size),
-                userService.getQueryWrapper(userQueryRequest));
-        Page<UserVO> userVOPage = new Page<>(current, size, userPage.getTotal());
-        List<UserVO> userVO = userService.getUserVO(userPage.getRecords());
-        userVOPage.setRecords(userVO);
+        Page<User> userPage = userService.page(new Page<>(current, size), userService.getQueryWrapper(userQueryRequest));
+        Page<UserVO> userVOPage = PageUtils.convert(userPage, userService::getUserVO);
         return AjaxResult.success(userVOPage);
     }
 
@@ -200,15 +189,12 @@ public class UserController {
     /**
      * 更新个人信息
      */
+
     @PostMapping("/update/my")
-    public AjaxResult updateMyUser(@RequestBody UserUpdateMyRequest userUpdateMyRequest,
-                                   HttpServletRequest request) {
-        if (userUpdateMyRequest == null) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
+    @ValidateRequest
+    public AjaxResult updateMyUser(@RequestBody UserUpdateMyRequest userUpdateMyRequest, HttpServletRequest request) {
         User loginUser = userService.getLoginUser(request);
-        User user = new User();
-        BeanUtils.copyProperties(userUpdateMyRequest, user);
+        User user = BeanUtil.copyProperties(userUpdateMyRequest, User.class);
         user.setId(loginUser.getId());
         boolean result = userService.updateById(user);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);

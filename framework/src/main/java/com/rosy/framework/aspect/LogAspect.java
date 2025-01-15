@@ -17,7 +17,7 @@ import java.util.UUID;
 @Aspect
 @Component
 @Slf4j
-public class LogInterceptor {
+public class LogAspect {
 
     /**
      * 拦截带有 @Loggable 注解的方法
