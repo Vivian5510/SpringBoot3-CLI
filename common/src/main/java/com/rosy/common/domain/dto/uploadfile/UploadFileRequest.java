@@ -1,4 +1,4 @@
-package com.rosy.main.domain.dto.file;
+package com.rosy.common.domain.dto.uploadfile;
 
 import lombok.Data;
 

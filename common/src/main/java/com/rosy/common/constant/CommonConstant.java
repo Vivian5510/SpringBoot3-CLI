@@ -158,6 +158,7 @@ public class CommonConstant {
      */
     public static final String[] JOB_ERROR_STR = {"java.net.URL", "jakarta.naming.InitialContext", "org.yaml.snakeyaml",
             "org.springframework", "org.apache", "com.rosy.common.utils.file", "com.rosy.common.config", "com.rosy.generator"};
+    public static final String DEFAULT_SORT_FIELD = "sortOrder";
 
     /**
      * 升序

@@ -1,7 +1,7 @@
-package com.rosy.web.controller.main;
+package com.rosy.web.controller.common;
 
 import com.rosy.common.constant.HttpStatus;
-import com.rosy.common.domain.entity.AjaxResult;
+import com.rosy.common.domain.entity.ApiResponse;
 import com.rosy.framework.config.properties.PathProperties;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,14 +17,14 @@ import java.util.Date;
 
 @RestController
 @RequestMapping("/file")
-public class FileController {
+public class UploadFileController {
     @Autowired
     PathProperties pathProperties;
 
     SimpleDateFormat sdf = new SimpleDateFormat("/yyyy/MM/dd");
 
     @PostMapping("/upload")
-    public AjaxResult uploadFile(MultipartFile file, HttpServletRequest request) {
+    public ApiResponse uploadFile(MultipartFile file, HttpServletRequest request) {
         String format = sdf.format(new Date());
         String path = pathProperties.getFileUploadPath() + format;
         File Folder = new File(path);
@@ -37,9 +37,9 @@ public class FileController {
             file.transferTo(new File(path + "/" + newFileName));
             String url = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/file/view" + format + "/" + newFileName;
             System.out.println("url = " + url);
-            return AjaxResult.success(url);
+            return ApiResponse.success(url);
         } catch (Exception e) {
-            return AjaxResult.error("上传失败");
+            return ApiResponse.error("上传失败");
         }
     }
 

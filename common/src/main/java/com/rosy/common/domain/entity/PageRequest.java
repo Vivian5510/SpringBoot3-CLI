@@ -19,7 +19,7 @@ public class PageRequest {
     /**
      * 排序字段
      */
-    private String sortField;
+    private String sortField = CommonConstant.DEFAULT_SORT_FIELD;
 
     /**
      * 排序顺序（默认升序）

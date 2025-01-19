@@ -11,7 +11,7 @@ import java.util.Objects;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class AjaxResult extends HashMap<String, Object> {
+public class ApiResponse extends HashMap<String, Object> {
     /**
      * 状态码
      */
@@ -28,30 +28,30 @@ public class AjaxResult extends HashMap<String, Object> {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 初始化一个新创建的 AjaxResult 对象，使其表示一个空消息。
+     * 初始化一个新创建的 ApiResponse 对象，使其表示一个空消息。
      */
-    public AjaxResult() {
+    public ApiResponse() {
     }
 
     /**
-     * 初始化一个新创建的 AjaxResult 对象
+     * 初始化一个新创建的 ApiResponse 对象
      *
      * @param code 状态码
      * @param msg  返回内容
      */
-    public AjaxResult(int code, String msg) {
+    public ApiResponse(int code, String msg) {
         super.put(CODE_TAG, code);
         super.put(MSG_TAG, msg);
     }
 
     /**
-     * 初始化一个新创建的 AjaxResult 对象
+     * 初始化一个新创建的 ApiResponse 对象
      *
      * @param code 状态码
      * @param msg  返回内容
      * @param data 数据对象
      */
-    public AjaxResult(int code, String msg, Object data) {
+    public ApiResponse(int code, String msg, Object data) {
         super.put(CODE_TAG, code);
         super.put(MSG_TAG, msg);
         if (StringUtils.isNotNull(data)) {
@@ -64,8 +64,8 @@ public class AjaxResult extends HashMap<String, Object> {
      *
      * @return 成功消息
      */
-    public static AjaxResult success() {
-        return AjaxResult.success("操作成功");
+    public static ApiResponse success() {
+        return ApiResponse.success("操作成功");
     }
 
     /**
@@ -73,8 +73,8 @@ public class AjaxResult extends HashMap<String, Object> {
      *
      * @return 成功消息
      */
-    public static AjaxResult success(Object data) {
-        return AjaxResult.success("操作成功", data);
+    public static ApiResponse success(Object data) {
+        return ApiResponse.success("操作成功", data);
     }
 
     /**
@@ -83,8 +83,8 @@ public class AjaxResult extends HashMap<String, Object> {
      * @param msg 返回内容
      * @return 成功消息
      */
-    public static AjaxResult success(String msg) {
-        return AjaxResult.success(msg, null);
+    public static ApiResponse success(String msg) {
+        return ApiResponse.success(msg, null);
     }
 
     /**
@@ -94,8 +94,8 @@ public class AjaxResult extends HashMap<String, Object> {
      * @param data 数据对象
      * @return 成功消息
      */
-    public static AjaxResult success(String msg, Object data) {
-        return new AjaxResult(HttpStatus.SUCCESS, msg, data);
+    public static ApiResponse success(String msg, Object data) {
+        return new ApiResponse(HttpStatus.SUCCESS, msg, data);
     }
 
     /**
@@ -104,8 +104,8 @@ public class AjaxResult extends HashMap<String, Object> {
      * @param msg 返回内容
      * @return 警告消息
      */
-    public static AjaxResult warn(String msg) {
-        return AjaxResult.warn(msg, null);
+    public static ApiResponse warn(String msg) {
+        return ApiResponse.warn(msg, null);
     }
 
     /**
@@ -115,8 +115,8 @@ public class AjaxResult extends HashMap<String, Object> {
      * @param data 数据对象
      * @return 警告消息
      */
-    public static AjaxResult warn(String msg, Object data) {
-        return new AjaxResult(HttpStatus.WARN, msg, data);
+    public static ApiResponse warn(String msg, Object data) {
+        return new ApiResponse(HttpStatus.WARN, msg, data);
     }
 
     /**
@@ -124,8 +124,8 @@ public class AjaxResult extends HashMap<String, Object> {
      *
      * @return 错误消息
      */
-    public static AjaxResult error() {
-        return AjaxResult.error("操作失败");
+    public static ApiResponse error() {
+        return ApiResponse.error("操作失败");
     }
 
     /**
@@ -134,8 +134,8 @@ public class AjaxResult extends HashMap<String, Object> {
      * @param msg 返回内容
      * @return 错误消息
      */
-    public static AjaxResult error(String msg) {
-        return AjaxResult.error(msg, null);
+    public static ApiResponse error(String msg) {
+        return ApiResponse.error(msg, null);
     }
 
     /**
@@ -145,8 +145,8 @@ public class AjaxResult extends HashMap<String, Object> {
      * @param data 数据对象
      * @return 错误消息
      */
-    public static AjaxResult error(String msg, Object data) {
-        return new AjaxResult(HttpStatus.ERROR, msg, data);
+    public static ApiResponse error(String msg, Object data) {
+        return new ApiResponse(HttpStatus.ERROR, msg, data);
     }
 
     /**
@@ -156,8 +156,8 @@ public class AjaxResult extends HashMap<String, Object> {
      * @param msg  返回内容
      * @return 错误消息
      */
-    public static AjaxResult error(int code, String msg) {
-        return new AjaxResult(code, msg, null);
+    public static ApiResponse error(int code, String msg) {
+        return new ApiResponse(code, msg, null);
     }
 
     /**
@@ -195,7 +195,7 @@ public class AjaxResult extends HashMap<String, Object> {
      * @return 数据对象
      */
     @Override
-    public AjaxResult put(String key, Object value) {
+    public ApiResponse put(String key, Object value) {
         super.put(key, value);
         return this;
     }
