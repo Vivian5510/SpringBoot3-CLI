@@ -80,15 +80,8 @@ public class ItemQueryRequest extends PageRequest implements Serializable {
     private LocalDateTime updateTime;
 
     /**
-     * 排序字段，用于查询时的排序控制
-     * 最大长度 50
+     * 排序顺序
      */
-    @Size(max = 50, message = "排序字段长度不能超过 50 个字符")
-    private String sortField;
-
-    /**
-     * 排序顺序，asc 或 desc
-     */
-    @Pattern(regexp = "asc|desc", message = "排序顺序只能为 asc 或 desc")
+    @PositiveOrZero(message = "排序字段必须为非负整数")
     private String sortOrder;
 }
