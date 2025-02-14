@@ -1,6 +1,6 @@
 package com.rosy.common.domain.entity;
 
-import com.rosy.common.constant.HttpStatus;
+import com.rosy.common.enums.ErrorCode;
 import com.rosy.common.utils.StringUtils;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -95,7 +95,7 @@ public class ApiResponse extends HashMap<String, Object> {
      * @return 成功消息
      */
     public static ApiResponse success(String msg, Object data) {
-        return new ApiResponse(HttpStatus.SUCCESS, msg, data);
+        return new ApiResponse(ErrorCode.SUCCESS.getCode(), msg, data);
     }
 
     /**
@@ -116,7 +116,7 @@ public class ApiResponse extends HashMap<String, Object> {
      * @return 警告消息
      */
     public static ApiResponse warn(String msg, Object data) {
-        return new ApiResponse(HttpStatus.WARN, msg, data);
+        return new ApiResponse(ErrorCode.WARN.getCode(), msg, data);
     }
 
     /**
@@ -146,7 +146,7 @@ public class ApiResponse extends HashMap<String, Object> {
      * @return 错误消息
      */
     public static ApiResponse error(String msg, Object data) {
-        return new ApiResponse(HttpStatus.ERROR, msg, data);
+        return new ApiResponse(ErrorCode.ERROR.getCode(), msg, data);
     }
 
     /**
@@ -166,7 +166,7 @@ public class ApiResponse extends HashMap<String, Object> {
      * @return 结果
      */
     public boolean isSuccess() {
-        return Objects.equals(HttpStatus.SUCCESS, this.get(CODE_TAG));
+        return Objects.equals(ErrorCode.SUCCESS.getCode(), this.get(CODE_TAG));
     }
 
     /**
@@ -175,7 +175,7 @@ public class ApiResponse extends HashMap<String, Object> {
      * @return 结果
      */
     public boolean isWarn() {
-        return Objects.equals(HttpStatus.WARN, this.get(CODE_TAG));
+        return Objects.equals(ErrorCode.WARN.getCode(), this.get(CODE_TAG));
     }
 
     /**
@@ -184,7 +184,7 @@ public class ApiResponse extends HashMap<String, Object> {
      * @return 结果
      */
     public boolean isError() {
-        return Objects.equals(HttpStatus.ERROR, this.get(CODE_TAG));
+        return Objects.equals(ErrorCode.ERROR.getCode(), this.get(CODE_TAG));
     }
 
     /**
