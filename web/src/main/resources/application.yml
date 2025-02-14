@@ -2,7 +2,7 @@ server:
   address: 0.0.0.0
   port: 8080
   servlet:
-    context-path: /api
+    context-path:
     # cookie 30 天过期
     session:
       cookie:
@@ -17,22 +17,22 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/example
-    username: xxx
-    password: xxx
+    url: ${MYSQL_URL:jdbc:mysql://localhost:3306/mysql?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai}
+    username: ${MYSQL_USERNAME:root}
+    password: ${MYSQL_PASSWORD:root}
 
 
   # redis 配置
   data:
     redis:
       # 地址
-      host: localhost
+      host: ${REDIS_HOST:localhost}
       # 端口，默认为6379
-      port: 6379
+      port: ${REDIS_PORT:6379}
       # 数据库索引
       database: 0
       # 密码
-      password:
+      password: ${REDIS_PASSWORD:redis}
       # 连接超时时间
       timeout: 10s
       lettuce:

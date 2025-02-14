@@ -27,7 +27,7 @@ public class RedisConfig implements CachingConfigurer {
         RedisTemplate<Object, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);
 
-        FastJson2JsonRedisSerializer serializer = new FastJson2JsonRedisSerializer(Object.class);
+        FastJson2JsonRedisSerializer<Object> serializer = new FastJson2JsonRedisSerializer<>(Object.class);
 
         // 使用StringRedisSerializer来序列化和反序列化redis的key值
         template.setKeySerializer(new StringRedisSerializer());
@@ -90,7 +90,7 @@ public class RedisConfig implements CachingConfigurer {
 
         @Override
         public T deserialize(byte[] bytes) throws SerializationException {
-            if (bytes == null || bytes.length <= 0) {
+            if (bytes == null || bytes.length == 0) {
                 return null;
             }
             String str = new String(bytes, DEFAULT_CHARSET);
